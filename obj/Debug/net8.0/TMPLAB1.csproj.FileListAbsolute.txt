@@ -1,0 +1,15 @@
+C:\Users\ledok\source\repos\TMPLAB1\bin\Debug\net8.0\TMPLAB1.exe
+C:\Users\ledok\source\repos\TMPLAB1\bin\Debug\net8.0\TMPLAB1.deps.json
+C:\Users\ledok\source\repos\TMPLAB1\bin\Debug\net8.0\TMPLAB1.runtimeconfig.json
+C:\Users\ledok\source\repos\TMPLAB1\bin\Debug\net8.0\TMPLAB1.dll
+C:\Users\ledok\source\repos\TMPLAB1\bin\Debug\net8.0\TMPLAB1.pdb
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\TMPLAB1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\TMPLAB1.AssemblyInfoInputs.cache
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\TMPLAB1.AssemblyInfo.cs
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\TMPLAB1.csproj.CoreCompileInputs.cache
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\TMPLAB1.sourcelink.json
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\TMPLAB1.dll
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\refint\TMPLAB1.dll
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\TMPLAB1.pdb
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\TMPLAB1.genruntimeconfig.cache
+C:\Users\ledok\source\repos\TMPLAB1\obj\Debug\net8.0\ref\TMPLAB1.dll
