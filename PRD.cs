@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,51 +10,67 @@ enum Type { PRODUCT, ASSEMBLY, DETAIL, UNKNOWN };
 
 namespace TMPLAB1
 {
-    public class FileHeaderPRD : IFileHeaderPRD
+    public class PRD: IFile
     {
-        public byte[] Signature { get; set; } = new byte[2];
-        public ushort RecordLen { get; set; }
-        public int p_FirstRec { get; set; }
-        public int p_FreeSpace { get; set; }
         public byte[] NameSpec { get; set; } = new byte[16];
-
         public bool IsOpen { get; set; }
         public string CurrentFileName { get; set; }
 
-        public FileHeaderPRD()
+        public HeaderPRD Header { get; set; } = new HeaderPRD();
+
+        public IFileHeader FileHeader
         {
-            Signature[0] = (byte)'P';
-            Signature[1] = (byte)'S';
-            IsOpen = false;
-            CurrentFileName = null;
+            get => Header;
+            set => Header = (HeaderPRD)value;
         }
 
-        public void Create(string fileName)
+        public RecordPRD Record { get; set; } = new RecordPRD();
+
+        IRecord IFile.Record
         {
-            string pureName = Path.GetFileNameWithoutExtension(fileName);
+            get => Record;
+            set => Record = (RecordPRD)value;
+        }
+
+        public PRD(string fileName)
+        {
+            CurrentFileName = fileName;
+        }
+        public PRD(string fileName, string recLen)
+        {
+            CurrentFileName = fileName;
+            Header.RecordLen = ushort.Parse(recLen);
+            Header.p_FirstRecord = -1;
+            Header.p_FreeSpace = 0;
+        }
+
+        private (RecordPRD, string) ReadRecord(BinaryReader br)
+        {
+            RecordPRD read = new RecordPRD(
+                            br.ReadByte(),
+                            br.ReadInt32(),
+                            br.ReadInt32(),
+                            br.ReadBytes(Header.RecordLen)
+                        );
+
+            string recordName = Encoding.UTF8.GetString(read.Name).TrimEnd('\0');
+            return (read, recordName);
+        }
+
+        public void Create()
+        {
+            string pureName = Path.GetFileNameWithoutExtension(CurrentFileName);
             string prsName = pureName + ".prs";
 
-            // Проверка расширения файла
-            if (!fileName.EndsWith(".prd", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new Exception("Ошибка: Файл должен иметь расширение .prd. Пример: 'file.prd' ");
-            }
+            Console.WriteLine(prsName);
 
-            // Проверка длины имени
-            if (pureName.Length > 16)
+            if (File.Exists(CurrentFileName))
             {
-                throw new Exception("Ошибка: Максимальная длина имени компонента — 16 символов!");
-            }
+                Console.WriteLine($"Файл {CurrentFileName} уже существует!");
 
-            // Проверка существующего файла
-            if (File.Exists(fileName))
-            {
-                Console.WriteLine($"Файл {fileName} уже существует!");
-
-                // Проверяем сигнатуру существующего файла
                 try
                 {
-                    using (BinaryReader br = new BinaryReader(File.OpenRead(fileName)))
+                    using (BinaryReader br = new BinaryReader(File.OpenRead(CurrentFileName)))
                     {
                         byte[] signature = br.ReadBytes(2);
 
@@ -87,66 +104,49 @@ namespace TMPLAB1
                 }
             }
 
-            RecordLen = 64;
-            p_FirstRec = -1;
-            p_FreeSpace = 0;
-            NameSpec = Encoding.ASCII.GetBytes(prsName.PadRight(16));
+            Header.NameSpec = Encoding.ASCII.GetBytes(prsName.PadRight(16));
 
-            // Создаем PRD файл и записываем заголовок
-            using (BinaryWriter bw = new BinaryWriter(File.Create(fileName)))
+            using (BinaryWriter bw = new BinaryWriter(File.Create(CurrentFileName)))
             {
-                bw.Write(Signature);     // 2 байта "PS"
-                bw.Write(RecordLen);     // 2 байта
-                bw.Write(p_FirstRec);    // 4 байта
-                bw.Write(p_FreeSpace);   // 4 байта
-                bw.Write(NameSpec);      // 16 байт
+                bw.Write(Header.Signature);
+                bw.Write(Header.RecordLen);
+                bw.Write(Header.p_FirstRecord);
+                bw.Write(Header.p_FreeSpace);
+                bw.Write(Header.NameSpec);      
             }
 
-            Console.WriteLine($"Файл {fileName} создан.");
+            Console.WriteLine($"Файл {CurrentFileName} создан.");
 
-            // Создаем пустой PRS файл
-            using (BinaryWriter bw = new BinaryWriter(File.Create(prsName)))
-            {
-                bw.Write(-1);  // p_FirstRec
-                bw.Write(0);   // p_FreeSpace
-            }
+            PRS prsFile = new PRS(prsName);
+            prsFile.Create();
 
-            Console.WriteLine($"Файл {prsName} создан.");
-
-            // Открываем файл для работы
-            CurrentFileName = fileName;
             IsOpen = true;
-            Console.WriteLine($"Файл {fileName} открыт для работы.");
+            Console.WriteLine($"Файл {CurrentFileName} открыт для работы.");
         }
 
-        public void Open(string fileName)
+        public void Open()
         {
-            if (!File.Exists(fileName)) throw new Exception($"Файла {fileName} не существует");
-
-            if (!fileName.EndsWith(".prd", StringComparison.OrdinalIgnoreCase)) throw new Exception("Ошибка: Файл должен иметь расширение .prd. Пример: 'file.prd' ");
+            if (!File.Exists(CurrentFileName)) throw new Exception($"Файла {CurrentFileName} не существует");
 
             try
             {
-                using (BinaryReader br = new BinaryReader(File.OpenRead(fileName)))
+                using (BinaryReader br = new BinaryReader(File.OpenRead(CurrentFileName)))
                 {
-                    Signature = br.ReadBytes(2);
-                    string signatureStr = Encoding.ASCII.GetString(Signature);
-
+                    Header.Signature = br.ReadBytes(2);
+                    string signatureStr = Encoding.ASCII.GetString(Header.Signature);
+                    
                     if (signatureStr != "PS") throw new Exception("Неверная сигнатура файла");
 
-                    RecordLen = br.ReadUInt16();
-                    p_FirstRec = br.ReadInt32();
-                    p_FreeSpace = br.ReadInt32();
-                    NameSpec = br.ReadBytes(16);
+                    Header.RecordLen = br.ReadUInt16();
+                    Header.p_FirstRecord = br.ReadInt32();
+                    Header.p_FreeSpace = br.ReadInt32();
+                    Header.NameSpec = br.ReadBytes(16);
 
                     if (NameSpec.Length < 16) throw new Exception("Файл поврежден: неполный заголовок");
                 }
 
-
-                CurrentFileName = fileName;
                 IsOpen = true;
-                Console.WriteLine($"Файл {fileName} открыт");
-
+                Console.WriteLine($"Файл {CurrentFileName} открыт");
             }
             catch (Exception ex)
             {
@@ -172,49 +172,34 @@ namespace TMPLAB1
                 .Replace(",", "")
                 .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-            if (parts.Length != 2) throw new Exception("Формат: input <имя> <тип>");
-
             string name = parts[0];
-            Type type = GetComponentType(parts[1]);
+            string typeStr = parts[1];
+            Type type = GetComponentType(typeStr);
 
             if (type == Type.UNKNOWN) throw new Exception("Неизвестный тип компонента");
 
-            if (name.Length > 64) throw new Exception("Превышена максимальная длина имени");
+            if (name.Length > Header.RecordLen) throw new Exception("Превышена максимальная длина имени");
 
             byte[] nameBytes = Encoding.UTF8.GetBytes(name);
 
-            RecordPRD newRecord = new RecordPRD
-            {
-                FlagDelete = 0,
-                p_FirstComp = -1,
-                p_Next = p_FirstRec,
-                Name = name
-            };
+            RecordPRD newRecord = new RecordPRD(0, -1, Header.p_FirstRecord, nameBytes);
 
             using (FileStream fs = new FileStream(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
             using (BinaryReader br = new BinaryReader(fs))
             using (BinaryWriter bw = new BinaryWriter(fs))
             {
-                int currentOffset = p_FirstRec;
+                int currentOffset = Header.p_FirstRecord;
                 while (currentOffset != -1 && currentOffset < fs.Length)
                 {
                     fs.Seek(currentOffset, SeekOrigin.Begin);
 
-                    RecordPRD record = new RecordPRD
-                    {
-                        FlagDelete = br.ReadByte(),
-                        p_FirstComp = br.ReadInt32(),
-                        p_Next = br.ReadInt32()
-                    };
-                    ushort nameLen = br.ReadUInt16();
-                    byte[] CheckNameBytes = br.ReadBytes(nameLen);
-                    record.Name = Encoding.UTF8.GetString(CheckNameBytes);
+                    (RecordPRD read, string nameStr) = ReadRecord(br);
 
-                    if (record.Name == name && !record.IsDeleted)
+                    if (nameStr == name && !read.IsDeleted)
                     {
                         throw new Exception($"Компонент с именем '{name}' уже существует!");
                     }
-                    currentOffset = record.p_Next;
+                    currentOffset = read.p_Next;
                 }
 
                 fs.Seek(4, SeekOrigin.Begin);
@@ -229,22 +214,24 @@ namespace TMPLAB1
                 bw.Write(newRecord.FlagDelete);
                 bw.Write(newRecord.p_FirstComp);
                 bw.Write(newRecord.p_Next);
-                bw.Write((ushort)nameBytes.Length);
-                bw.Write(nameBytes);
+                byte[] nameBuffer = new byte[Header.RecordLen];
+                Array.Copy(nameBytes, nameBuffer, nameBytes.Length);
+
+                bw.Write(nameBuffer);
                 bw.Flush();
 
                 fs.Seek(4, SeekOrigin.Begin);
                 bw.Write(newOffset);
 
                 fs.Seek(8, SeekOrigin.Begin);
-                int newFreeSpace = oldP_FreeSpace + 1 + 4 + 4 + nameBytes.Length;
+                int newFreeSpace = oldP_FreeSpace + 1 + 4 + 4 + Header.RecordLen;
                 bw.Write(newFreeSpace);
 
-                p_FirstRec = newOffset;
-                p_FreeSpace = newFreeSpace;
+                Header.p_FirstRecord = newOffset;
+                Header.p_FreeSpace = newFreeSpace;
             }
 
-            Console.WriteLine($"Компонент '{name}' ({parts[1]}) добавлен.");
+            Console.WriteLine($"Компонент '{name}' ({typeStr}) добавлен.");
         }
 
         public void Delete(string name)
@@ -253,59 +240,35 @@ namespace TMPLAB1
 
             if (string.IsNullOrEmpty(name)) throw new Exception("Укажите имя компонента для удаления");
 
-            List<RecordPRD> allRecords = new List<RecordPRD>();
-            Dictionary<int, RecordPRD> recordsByOffset = new Dictionary<int, RecordPRD>();
             int foundOffset = -1;
-            RecordPRD foundRecord = null;
 
             using (FileStream fs = new FileStream(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
             using (BinaryReader br = new BinaryReader(fs))
             {
-                int currentOffset = p_FirstRec;
+                int currentOffset = Header.p_FirstRecord;
                 while (currentOffset != -1 && currentOffset < fs.Length)
                 {
                     fs.Seek(currentOffset, SeekOrigin.Begin);
 
-                    RecordPRD record = new RecordPRD
-                    {
-                        FlagDelete = br.ReadByte(),
-                        p_FirstComp = br.ReadInt32(),
-                        p_Next = br.ReadInt32()
-                    };
+                    (RecordPRD read, string nameStr) = ReadRecord(br);
 
-                    ushort nameLen = br.ReadUInt16();
-                    byte[] nameBytes = br.ReadBytes(nameLen);
-                    record.Name = Encoding.UTF8.GetString(nameBytes);
-
-                    recordsByOffset[currentOffset] = record;
-                    allRecords.Add(record);
-
-                    // Просто ищем первый (и единственный) компонент с нужным именем
-                    if (record.Name == name && !record.IsDeleted)
+                    if (nameStr == name && !read.IsDeleted)
                     {
                         foundOffset = currentOffset;
-                        foundRecord = record;
                         break;
                     }
-
-                    currentOffset = record.p_Next;
+                    
+                    currentOffset = read.p_Next;  
                 }
             }
 
             if (foundOffset == -1) throw new Exception($"Компонент '{name}' не найден");
 
-            // Проверка на наличие ссылок на удаляемый компонент
-            foreach (var kvp in recordsByOffset)
-            {
-                if (kvp.Value.p_FirstComp == foundOffset && !kvp.Value.IsDeleted)
-                    throw new Exception($"Невозможно удалить компонент '{name}': на него есть ссылки из компонента '{kvp.Value.Name}'");
-            }
-
             using (FileStream fs = new FileStream(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
             using (BinaryWriter bw = new BinaryWriter(fs))
             {
                 fs.Seek(foundOffset, SeekOrigin.Begin);
-                bw.Write((byte)0xFF); // Помечаем как удаленный
+                bw.Write((byte)0xFF);
             }
 
             Console.WriteLine($"Компонент '{name}' помечен как удаленный.");
@@ -326,32 +289,25 @@ namespace TMPLAB1
             using (FileStream fs = new FileStream(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
             using (BinaryReader br = new BinaryReader(fs))
             {
-                int currentOffset = p_FirstRec;
+                int currentOffset = Header.p_FirstRecord;
                 int foundOffset = -1;
 
                 while (currentOffset != -1 && currentOffset < fs.Length)
                 {
                     fs.Seek(currentOffset, SeekOrigin.Begin);
 
-                    byte flag = br.ReadByte();
+                    (RecordPRD read, string nameStr) = ReadRecord(br);
 
-                    int pFirstComp = br.ReadInt32();
-                    int pNext = br.ReadInt32();
-
-                    ushort nameLen = br.ReadUInt16();
-                    byte[] nameBytes = br.ReadBytes(nameLen);
-                    string recordName = Encoding.UTF8.GetString(nameBytes);
-
-                    if (recordName == name)
+                    if (nameStr == name)
                     {
-                        if (flag != 0xFF) // Проверяем, удален ли
+                        if (!read.IsDeleted)
                             throw new Exception($"Компонент '{name}' не удален");
 
                         foundOffset = currentOffset;
                         break;
                     }
 
-                    currentOffset = pNext;
+                    currentOffset = read.p_Next;
                 }
 
                 if (foundOffset == -1)
@@ -373,32 +329,23 @@ namespace TMPLAB1
             using (BinaryReader br = new BinaryReader(fs))
             using (BinaryWriter bw = new BinaryWriter(fs))
             {
-                int currentOffset = p_FirstRec;
+                int currentOffset = Header.p_FirstRecord;
                 int restoredCount = 0;
 
                 while (currentOffset != -1 && currentOffset < fs.Length)
                 {
                     fs.Seek(currentOffset, SeekOrigin.Begin);
 
-                    // Читаем флаг удаления
-                    byte flag = br.ReadByte();
+                    (RecordPRD read, string nameStr) = ReadRecord(br);
 
-                    // Читаем остальные поля
-                    int pFirstComp = br.ReadInt32();
-                    int pNext = br.ReadInt32();
-
-                    ushort nameLen = br.ReadUInt16();
-                    byte[] nameBytes = br.ReadBytes(nameLen);
-                    string recordName = Encoding.UTF8.GetString(nameBytes);
-
-                    if (flag == 0xFF)
+                    if (!read.IsDeleted)
                     {
                         fs.Seek(currentOffset, SeekOrigin.Begin);
                         bw.Write((byte)0x00);
                         restoredCount++;
                     }
 
-                    currentOffset = pNext;
+                    currentOffset = read.p_Next;
                 }
 
                 Console.WriteLine($"Восстановлено компонентов: {restoredCount}");
@@ -420,50 +367,39 @@ namespace TMPLAB1
                 using (BinaryReader br = new BinaryReader(sourceFs))
                 using (BinaryWriter bw = new BinaryWriter(destFs))
                 {
-                    // 1. Сначала копируем заголовок (первые 28 байт)
                     sourceFs.Seek(0, SeekOrigin.Begin);
 
                     byte[] signature = br.ReadBytes(2);
                     ushort recordLen = br.ReadUInt16();
-                    int oldP_FirstRec = br.ReadInt32(); // читаем, но не используем
-                    int oldP_FreeSpace = br.ReadInt32(); // читаем, но не используем
+                    int oldP_FirstRec = br.ReadInt32(); 
+                    int oldP_FreeSpace = br.ReadInt32();
                     byte[] nameSpec = br.ReadBytes(16);
 
-                    // Записываем заголовок в новый файл
                     bw.Write(signature);
                     bw.Write(recordLen);
-                    bw.Write(-1); // временно p_FirstRec
-                    bw.Write(0);  // временно p_FreeSpace
+                    bw.Write(-1);
+                    bw.Write(0);
                     bw.Write(nameSpec);
 
-                    // 2. Теперь обрабатываем записи
-                    int currentOffset = p_FirstRec;
+                    int currentOffset = Header.p_FirstRecord;
 
                     while (currentOffset != -1 && currentOffset < sourceFs.Length)
                     {
                         sourceFs.Seek(currentOffset, SeekOrigin.Begin);
 
-                        byte flag = br.ReadByte();
-                        int firstComp = br.ReadInt32();
-                        int nextOffset = br.ReadInt32();
+                        (RecordPRD read, string nameStr) = ReadRecord(br);
 
-                        ushort nameLen = br.ReadUInt16();
-                        byte[] nameBytes = br.ReadBytes(nameLen);
-
-                        // Если запись не удалена - сохраняем
-                        if (flag != 0xFF)
+                        if (!read.IsDeleted)
                         {
                             long recordStart = destFs.Position;
 
                             if (newFirstRec == -1)
                                 newFirstRec = (int)recordStart;
 
-                            // Записываем запись (p_Next пока временный)
-                            bw.Write(flag);
-                            bw.Write(firstComp);
+                            bw.Write(read.FlagDelete);
+                            bw.Write(read.p_FirstComp);
                             bw.Write(0); // временный p_Next
-                            bw.Write(nameLen);
-                            bw.Write(nameBytes);
+                            bw.Write(read.Name);
 
                             // Обновляем ссылку предыдущей записи
                             if (lastValidOffset != -1)
@@ -476,34 +412,27 @@ namespace TMPLAB1
 
                             lastValidOffset = (int)recordStart;
                         }
-                        else
-                        {
-                            removedCount++;
-                        }
+                        else removedCount++;
 
-                        currentOffset = nextOffset;
+                        currentOffset = read.p_Next;
                     }
 
-                    // Закрываем список последней записи
                     if (lastValidOffset != -1)
                     {
                         destFs.Seek(lastValidOffset + 5, SeekOrigin.Begin);
                         bw.Write(-1);
                     }
 
-                    // 3. Обновляем заголовок с правильными значениями
-                    destFs.Seek(4, SeekOrigin.Begin); // позиция p_FirstRec
+                    destFs.Seek(4, SeekOrigin.Begin);
                     bw.Write(newFirstRec);
 
-                    destFs.Seek(8, SeekOrigin.Begin); // позиция p_FreeSpace
-                    bw.Write(0); // после компактизации свободного места нет
+                    destFs.Seek(8, SeekOrigin.Begin);
+                    bw.Write(0);
                 }
 
-                // Обновляем поля класса
-                p_FirstRec = newFirstRec;
-                p_FreeSpace = 0;
+                Header.p_FirstRecord = newFirstRec;
+                Header.p_FreeSpace = 0;
 
-                // Заменяем файл
                 File.Delete(CurrentFileName);
                 File.Move(tempFile, CurrentFileName);
 
@@ -527,35 +456,30 @@ namespace TMPLAB1
                 using (FileStream fs = new FileStream(CurrentFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (BinaryReader br = new BinaryReader(fs))
                 {
-                    if (p_FirstRec == -1)
+                    if (Header.p_FirstRecord == -1)
                     {
                         Console.WriteLine("Записей нет.");
                         return;
                     }
 
-                    int offset = p_FirstRec;
+                    int offset = Header.p_FirstRecord;
+
+                    string NameSpec = Encoding.UTF8.GetString(Header.NameSpec);
+
+                    Console.WriteLine($"HEADER: p_FirstRecord {Header.p_FirstRecord} | NameSpec: {NameSpec} | FreeSpace: {Header.p_FreeSpace} | RecordLen: {Header.RecordLen}");
 
                     while (offset != -1 && offset < fs.Length)
                     {
                         fs.Seek(offset, SeekOrigin.Begin);
 
-                        RecordPRD record = new RecordPRD
-                        {
-                            FlagDelete = br.ReadByte(),
-                            p_FirstComp = br.ReadInt32(),
-                            p_Next = br.ReadInt32()
-                        };
+                        (RecordPRD read, string recordName) = ReadRecord(br);
 
-                        ushort nameLen = br.ReadUInt16();
-                        byte[] nameBytes = br.ReadBytes(nameLen);
-                        record.Name = Encoding.UTF8.GetString(nameBytes);
+                        string type = read.IsDetail ? "Деталь" : read.IsAssembly ? "Узел/Изделие" : "Неизвестно";
+                        string deleted = read.IsDeleted ? " (удален)" : "";
 
-                        string type = record.IsDetail ? "Деталь" : record.IsAssembly ? "Узел/Изделие" : "Неизвестно";
-                        string deleted = record.IsDeleted ? " (удален)" : "";
+                        Console.WriteLine($"Offset: {offset} | {type}{deleted} | FirstComp: {read.p_FirstComp} | Next: {read.p_Next} | Name: {recordName}");
 
-                        Console.WriteLine($"Offset: {offset} | {type}{deleted} | FirstComp: {record.p_FirstComp} | Next: {record.p_Next} | Name: {record.Name}");
-
-                        offset = record.p_Next;
+                        offset = read.p_Next;
                     }
                 }
             }
@@ -571,50 +495,57 @@ namespace TMPLAB1
                 PrintAll();
                 return;
             }
-            List<RecordPRD> allRecords = new List<RecordPRD>();
-            Dictionary<int, RecordPRD> recordsByOffset = new Dictionary<int, RecordPRD>();
-            int foundOffset = -1;
-            RecordPRD foundRecord = null;
 
-            using (FileStream fs = new FileStream(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
-            using (BinaryReader br = new BinaryReader(fs))
+            string NameSpec = Encoding.UTF8.GetString(Header.NameSpec);
+
+            PRS filePRS = new PRS();
+            filePRS.CurrentFileName = NameSpec;
+
+            FileStream prsStream = new(filePRS.CurrentFileName, FileMode.Open, FileAccess.ReadWrite);
+            BinaryReader prsReader = new(prsStream);
+
+            FileStream prdStream = new(CurrentFileName, FileMode.Open, FileAccess.ReadWrite);
+            BinaryReader prdReader = new(prdStream);
+
+
+            int currentOffset = Header.p_FirstRecord;
+            int firstComp = 0;
+
+            while (currentOffset != -1 && currentOffset < prdStream.Length)
             {
-                int currentOffset = p_FirstRec;
-                while (currentOffset != -1 && currentOffset < fs.Length)
+                prdStream.Seek(currentOffset, SeekOrigin.Begin);
+
+                (RecordPRD read, string nameStr) = ReadRecord(prdReader);
+
+                string type = read.IsDetail ? "Деталь" : read.IsAssembly ? "Узел/Изделие" : "Неизвестно";
+
+                firstComp = read.p_FirstComp;
+
+                if (nameStr == name)
                 {
-                    fs.Seek(currentOffset, SeekOrigin.Begin);
-
-                    RecordPRD record = new RecordPRD
-                    {
-                        FlagDelete = br.ReadByte(),
-                        p_FirstComp = br.ReadInt32(),
-                        p_Next = br.ReadInt32()
-                    };
-
-                    string type = record.IsDetail ? "Деталь" : record.IsAssembly ? "Узел/Изделие" : "Неизвестно";
-
-                    ushort nameLen = br.ReadUInt16();
-                    byte[] nameBytes = br.ReadBytes(nameLen);
-                    record.Name = Encoding.UTF8.GetString(nameBytes);
-
-                    recordsByOffset[currentOffset] = record;
-                    allRecords.Add(record);
-
-                    if (record.Name == name)
-                    {
-                        if (type == "Деталь") throw new Exception($"Компонент '{name}' явлется деталью!");
-                        foundOffset = currentOffset;
-                        foundRecord = record;
-                        break;
-                    }
-
-                    currentOffset = record.p_Next;
+                    if (type == "Деталь") throw new Exception($"Компонент '{name}' явлется деталью!");
+                    break;
                 }
 
-                if (foundOffset == -1) throw new Exception($"Компонент '{name}' не найден");
-
-                Console.WriteLine(name);
+                currentOffset = read.p_Next;
             }
+
+            Console.WriteLine(name);
+            Console.WriteLine("|");
+            
+            prsStream.Seek(firstComp, SeekOrigin.Begin);
+
+            filePRS.Record.FlagDelete = prsReader.ReadByte();
+            filePRS.Record.p_Product = prsReader.ReadInt32();
+            filePRS.Record.p_Detail = prsReader.ReadInt32();
+
+            prdStream.Seek(filePRS.Record.p_Detail, SeekOrigin.Begin);
+
+            Record.Name = prdReader.ReadBytes(Header.RecordLen);
+
+            string NameDetail = Encoding.UTF8.GetString(Record.Name);
+
+            Console.WriteLine(NameDetail);
 
         }
 
@@ -625,37 +556,28 @@ namespace TMPLAB1
                 using (FileStream fs = new FileStream(CurrentFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (BinaryReader br = new BinaryReader(fs))
                 {
-                    if (p_FirstRec == -1)
+                    if (Header.p_FirstRecord == -1)
                     {
                         Console.WriteLine("Записей нет.");
                         return;
                     }
 
-                    int offset = p_FirstRec;
+                    int offset = Header.p_FirstRecord;
 
                     //Console.WriteLine($"Наименование; Тип");
                     while (offset != -1 && offset < fs.Length)
                     {
                         fs.Seek(offset, SeekOrigin.Begin);
 
-                        RecordPRD record = new RecordPRD
-                        {
-                            FlagDelete = br.ReadByte(),
-                            p_FirstComp = br.ReadInt32(),
-                            p_Next = br.ReadInt32()
-                        };
+                        (RecordPRD read, string nameStr) = ReadRecord(br);
 
-                        ushort nameLen = br.ReadUInt16();
-                        byte[] nameBytes = br.ReadBytes(nameLen);
-                        record.Name = Encoding.UTF8.GetString(nameBytes);
+                        string type = read.IsDetail ? "Деталь" : read.IsAssembly ? "Узел/Изделие" : "Неизвестно";
+                        string deleted = read.IsDeleted ? " (удален)" : "";
 
-                        string type = record.IsDetail ? "Деталь" : record.IsAssembly ? "Узел/Изделие" : "Неизвестно";
-                        string deleted = record.IsDeleted ? " (удален)" : "";
-
-                        Console.WriteLine($"Наименование: {record.Name}; Тип: {type}");
+                        Console.WriteLine($"Наименование: {nameStr}; Тип: {type}");
                         //Console.WriteLine($"{record.Name}; {type}");
 
-                        offset = record.p_Next;
+                        offset = read.p_Next;
                     }
                 }
             }
@@ -665,21 +587,5 @@ namespace TMPLAB1
             }
 
         }
-    }
-
-    public class RecordPRD
-    {
-        public byte FlagDelete { get; set; }
-        public int p_FirstComp { get; set; }
-        public int p_Next { get; set; }
-        public string Name { get; set; }
-
-        public bool IsDeleted => FlagDelete == 0xFF;
-        public bool IsDetail => p_FirstComp == -1;
-        public bool IsAssembly => p_FirstComp != -1;
-    }
-
-    internal class PRDFile
-    {
     }
 }

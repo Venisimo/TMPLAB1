@@ -7,6 +7,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Runtime;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -98,9 +99,39 @@ namespace TMPLAB1
 
         }
 
+        public static IFile CheckExtention(string fileName, string? recLen = null)
+        {
+            if (fileName.EndsWith(".prd"))
+            {
+                if (recLen == null) throw new Exception("Укажите длину записи данных: Create <имя файла>(длина записи)");
+
+                return new PRD(fileName, recLen);
+            }
+            else if (fileName.EndsWith(".prs"))
+            {
+                return new PRS(fileName);
+            }
+            else
+                throw new Exception("Файл должен иметь расширение prd или prs");
+        }
+
+        public static IFile CheckExtention(string fileName)
+        {
+            if (fileName.EndsWith(".prd"))
+            {
+                return new PRD(fileName);
+            }
+            else if (fileName.EndsWith(".prs"))
+            {
+                return new PRS(fileName);
+            }
+            else
+                throw new Exception("Файл должен иметь расширение prd или prs");
+        }
+
         static void Main(string[] args)
         {
-            FileHeaderPRD currentFile = null;
+            IFile currentFile = null;
 
             Console.WriteLine("Система управления спецификациями (PRD)");
 
@@ -126,8 +157,22 @@ namespace TMPLAB1
                                 Console.WriteLine("Ошибка: Укажите имя файла. Пример: create test.prd");
                                 break;
                             }
-                            currentFile = new FileHeaderPRD();
-                            currentFile.Create(argument);
+
+                            string[] partsArgument = argument.Split(new[] { '(' }, 2);
+
+                            string fileName = partsArgument[0];
+
+                            string? recLen = null;
+
+                            if (partsArgument.Length > 1)
+                            {
+                                recLen = partsArgument[1].Replace(")", "");
+                            }
+
+                            currentFile = CheckExtention(fileName, recLen);
+
+                            currentFile.Create();
+
                             break;
 
                         case "open":
@@ -136,8 +181,10 @@ namespace TMPLAB1
                                 Console.WriteLine("Ошибка: Укажите имя файла. Пример: open test.prd");
                                 break;
                             }
-                            currentFile = new FileHeaderPRD();
-                            currentFile.Open(argument);
+
+                            currentFile = CheckExtention(argument);
+
+                            currentFile.Open();
                             break;
 
                         case "input":
@@ -172,15 +219,9 @@ namespace TMPLAB1
 
                             currentFile.Print(argument);
                             break;
-                        case "printdev": // для делтального просмотра файла
+                        case "printdev":
                             if (currentFile == null || !currentFile.IsOpen)
                                 throw new Exception("Файл не открыт");
-
-                            if (string.IsNullOrEmpty(argument))
-                            {
-                                Console.WriteLine("Ошибка: Укажите имя файла. Пример: print test.prd");
-                                break;
-                            }
 
                             currentFile.PrintDev();
                             break;
@@ -203,6 +244,8 @@ namespace TMPLAB1
 
                             currentFile.Truncate();
                             break;
+                        case "exit":
+                            return;
 
                         default:
                             Console.WriteLine("Неизвестная команда. Доступные команды: create, open, input, delete, print, restore, exit");
