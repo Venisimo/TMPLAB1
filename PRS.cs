@@ -275,11 +275,8 @@ namespace TMPLAB1
             prdStream.Seek(mainRecordOffset + 1, SeekOrigin.Begin);
             int firstComp = prdReader.ReadInt32();
 
-            if (firstComp == -1)
-            {
-                prdStream.Seek(mainRecordOffset + 1, SeekOrigin.Begin);
-                prdWriter.Write(newRecordOffset);
-            }
+            prdStream.Seek(mainRecordOffset + 1, SeekOrigin.Begin);
+            prdWriter.Write(newRecordOffset);
 
             Console.WriteLine($"Добавлена связь: {mainComponent} -> {detailComponent}");
         }
