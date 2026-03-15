@@ -581,7 +581,7 @@ namespace TMPLAB1
 
                 Debug.WriteLine($"currentOffset: {currentOffset}, name: {name}");
 
-                if (NameProduct == name)
+                if (!filePRS.Record.IsDeleted && NameProduct == name)
                 {
                     Console.Write(new string(' ', indent - NameDetail.Length));
                     Console.Write(NameDetail);

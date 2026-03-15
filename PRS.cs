@@ -13,10 +13,6 @@ namespace TMPLAB1
 {
     public class PRS : IFile
     {
-        public void Delete(string name) { }
-        public void Restore(string name) { }
-        public void Truncate() { }
-
         public bool IsOpen { get; set; }
         public string CurrentFileName { get; set; }
 
@@ -160,8 +156,6 @@ namespace TMPLAB1
             {
                 stream.Seek(offset, SeekOrigin.Begin);
                 (RecordPRD read, string nameStr) = ReadRecord(reader, RecordLen);
-
-                Console.WriteLine(nameStr);
 
                 if (nameStr == name) return offset;
 
@@ -330,5 +324,233 @@ namespace TMPLAB1
                 }
             }
         }
+
+        private void ChangeOccurance(int productOffset, int currentOffset, BinaryReader prsReader, BinaryWriter prsWriter, FileStream prsStream, bool isIncrease)
+        {
+            while (currentOffset != -1)
+            {
+                prsStream.Seek(currentOffset, SeekOrigin.Begin);
+
+                Record.FlagDelete = prsReader.ReadByte();
+                Record.p_Product = prsReader.ReadInt32();
+                Record.p_Detail = prsReader.ReadInt32();
+
+                Record.MultiOccurrence = prsReader.ReadUInt16();
+
+                if (productOffset == Record.p_Product)
+                {
+                    ushort newValue = isIncrease
+                        ? (ushort)(Record.MultiOccurrence + 1)
+                        : (ushort)(Record.MultiOccurrence - 1);
+
+                    prsStream.Seek(-2, SeekOrigin.Current);
+                    prsWriter.Write(newValue);
+                }
+
+                Record.p_Next = prsReader.ReadInt32();
+                currentOffset = Record.p_Next;
+            }
+        }
+
+        public void Delete(string argument)
+        {
+            if (!IsOpen) throw new Exception("Файл не открыт");
+
+            string[] parts = argument
+             .Replace("(", "")
+             .Replace(")", "")
+             .Replace(",", "")
+             .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string product = parts[0];
+            string detail = parts[1];
+
+            string prdFileName = Path.ChangeExtension(CurrentFileName, ".prd");
+            PRD filePRD = new PRD(prdFileName);
+
+            using (FileStream prsStream = new FileStream(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryReader prsReader = new BinaryReader(prsStream))
+            using (BinaryWriter prsWriter = new BinaryWriter(prsStream))
+            using (FileStream prdStream = new FileStream(prdFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryReader prdReader = new BinaryReader(prdStream))
+            using (BinaryWriter prdWriter = new BinaryWriter(prdStream))
+            {
+
+                prsStream.Seek(0, SeekOrigin.Begin);
+
+                Header.p_FirstRecord = prsReader.ReadInt32();
+
+                int currentOffset = Header.p_FirstRecord;
+
+                if (currentOffset == -1)
+                {
+                    Console.WriteLine("Файл пуст.");
+                    return;
+                }
+
+                prdStream.Seek(2, SeekOrigin.Begin);
+                filePRD.Header.RecordLen = prdReader.ReadUInt16();
+                filePRD.Header.p_FirstRecord = prdReader.ReadInt32();
+                
+                int productOffset = FindComponent(prdStream, prdReader, filePRD.Header.p_FirstRecord, product, filePRD.Header.RecordLen);
+                int detailOffset = FindComponent(prdStream, prdReader, filePRD.Header.p_FirstRecord, detail, filePRD.Header.RecordLen);
+                
+                if (productOffset == -1) throw new Exception("Указнного узла/изделия не существует!");
+                if (detailOffset == -1) throw new Exception("Указнной детали не существует!");
+
+                while (currentOffset != -1)
+                {
+                    prsStream.Seek(currentOffset, SeekOrigin.Begin);
+
+                    Record.FlagDelete = prsReader.ReadByte();
+                    Record.p_Product = prsReader.ReadInt32();
+                    Record.p_Detail = prsReader.ReadInt32();
+                    Record.MultiOccurrence = prsReader.ReadUInt16();
+                    Record.p_Next = prsReader.ReadInt32();
+
+                    if (!Record.IsDeleted && Record.p_Product == productOffset && Record.p_Detail == detailOffset)
+                    {
+                        prsStream.Seek(currentOffset, SeekOrigin.Begin);
+                        prsWriter.Write((byte)0xFF);
+                        ChangeOccurance(productOffset, Header.p_FirstRecord, prsReader, prsWriter, prsStream, false);
+                        Console.WriteLine($" Связь {product} -> {detail} помечена на удаление");
+                        break;
+                    }
+                    currentOffset = Record.p_Next;
+                }
+
+                if (currentOffset == -1) throw new Exception("Связи не существует!");
+            }
+        }
+        public void Restore(string name) 
+        {
+
+            if (!IsOpen) throw new Exception("Файл не открыт");
+
+            if (string.IsNullOrEmpty(name)) throw new Exception("Укажите связь для восстановления");
+
+            if (name == "*")
+            {
+                RestoreAll();
+                return;
+            }
+
+            string[] parts = name
+             .Replace("(", "")
+             .Replace(")", "")
+             .Replace(",", "")
+             .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string product = parts[0];
+            string detail = parts[1];
+
+            string prdFileName = Path.ChangeExtension(CurrentFileName, ".prd");
+            PRD filePRD = new PRD(prdFileName);
+
+            using (FileStream prsStream = new FileStream(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryReader prsReader = new BinaryReader(prsStream))
+            using (BinaryWriter prsWriter = new BinaryWriter(prsStream))
+            using (FileStream prdStream = new FileStream(prdFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryReader prdReader = new BinaryReader(prdStream))
+            using (BinaryWriter prdWriter = new BinaryWriter(prdStream))
+            {
+                prsStream.Seek(0, SeekOrigin.Begin);
+
+                Header.p_FirstRecord = prsReader.ReadInt32();
+
+                int currentOffset = Header.p_FirstRecord;
+
+                if (currentOffset == -1)
+                {
+                    Console.WriteLine("Файл пуст.");
+                    return;
+                }
+
+                prdStream.Seek(2, SeekOrigin.Begin);
+                filePRD.Header.RecordLen = prdReader.ReadUInt16();
+                filePRD.Header.p_FirstRecord = prdReader.ReadInt32();
+
+                int productOffset = FindComponent(prdStream, prdReader, filePRD.Header.p_FirstRecord, product, filePRD.Header.RecordLen);
+                int detailOffset = FindComponent(prdStream, prdReader, filePRD.Header.p_FirstRecord, detail, filePRD.Header.RecordLen);
+
+                if (productOffset == -1) throw new Exception("Указнного узла/изделия не существует!");
+                if (detailOffset == -1) throw new Exception("Указнной детали не существует!");
+
+                while (currentOffset != -1)
+                {
+                    prsStream.Seek(currentOffset, SeekOrigin.Begin);
+
+                    Record.FlagDelete = prsReader.ReadByte();
+                    Record.p_Product = prsReader.ReadInt32();
+                    Record.p_Detail = prsReader.ReadInt32();
+                    Record.MultiOccurrence = prsReader.ReadUInt16();
+                    Record.p_Next = prsReader.ReadInt32();
+
+                    if (Record.IsDeleted && Record.p_Product == productOffset && Record.p_Detail == detailOffset)
+                    {
+                        prsStream.Seek(currentOffset, SeekOrigin.Begin);
+                        prsWriter.Write((byte)0x00);
+                        ChangeOccurance(productOffset, Header.p_FirstRecord, prsReader, prsWriter, prsStream, true);
+                        Console.WriteLine("Связь восстановлена");
+                        break;
+                    }
+                    currentOffset = Record.p_Next;
+                    
+                }
+
+                if (currentOffset == -1) throw new Exception("Связи не существует, либо она не почена на удаление!");
+            }
+        }
+
+        private void RestoreAll() 
+        {
+
+            using (FileStream prsStream = new FileStream(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryReader prsReader = new BinaryReader(prsStream))
+            using (BinaryWriter prsWriter = new BinaryWriter(prsStream))
+            {
+                prsStream.Seek(0, SeekOrigin.Begin);
+
+                Header.p_FirstRecord = prsReader.ReadInt32();
+
+                int currentOffset = Header.p_FirstRecord;
+
+                if (currentOffset == -1)
+                {
+                    Console.WriteLine("Файл пуст.");
+                    return;
+                }
+
+                int count = 0;
+
+                while (currentOffset != -1)
+                {
+                    prsStream.Seek(currentOffset, SeekOrigin.Begin);
+
+                    Record.FlagDelete = prsReader.ReadByte();
+                    Record.p_Product = prsReader.ReadInt32();
+                    Record.p_Detail = prsReader.ReadInt32();
+                    Record.MultiOccurrence = prsReader.ReadUInt16();
+                    Record.p_Next = prsReader.ReadInt32();
+
+                    int nextOffset = Record.p_Next;
+
+                    if (Record.IsDeleted)
+                    {
+                        prsStream.Seek(currentOffset, SeekOrigin.Begin);
+                        prsWriter.Write((byte)0x00);
+                        ChangeOccurance(Record.p_Product, Header.p_FirstRecord, prsReader, prsWriter, prsStream, true);
+                        count++;
+                    }
+
+                    currentOffset = nextOffset;
+                }
+
+                Console.WriteLine($"Восстановлено связей: {count}");
+
+            }
+        }
+
+        public void Truncate() { }
     }
 }
