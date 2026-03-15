@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 enum Type { PRODUCT, ASSEMBLY, DETAIL, UNKNOWN };
 
@@ -501,53 +503,146 @@ namespace TMPLAB1
             PRS filePRS = new PRS();
             filePRS.CurrentFileName = NameSpec;
 
-            FileStream prsStream = new(filePRS.CurrentFileName, FileMode.Open, FileAccess.ReadWrite);
-            BinaryReader prsReader = new(prsStream);
-
-            FileStream prdStream = new(CurrentFileName, FileMode.Open, FileAccess.ReadWrite);
-            BinaryReader prdReader = new(prdStream);
-
-
-            int currentOffset = Header.p_FirstRecord;
-            int firstComp = 0;
-
-            while (currentOffset != -1 && currentOffset < prdStream.Length)
+            using (FileStream prsStream = new(filePRS.CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryReader prsReader = new(prsStream))
+            using (FileStream prdStream = new(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryReader prdReader = new(prdStream))
             {
-                prdStream.Seek(currentOffset, SeekOrigin.Begin);
+                int currentOffset = Header.p_FirstRecord;
+                int firstComp = 0;
 
-                (RecordPRD read, string nameStr) = ReadRecord(prdReader);
-
-                string type = read.IsDetail ? "Деталь" : read.IsAssembly ? "Узел/Изделие" : "Неизвестно";
-
-                firstComp = read.p_FirstComp;
-
-                if (nameStr == name)
+                while (currentOffset != -1 && currentOffset < prdStream.Length)
                 {
-                    if (type == "Деталь") throw new Exception($"Компонент '{name}' явлется деталью!");
-                    break;
+                    prdStream.Seek(currentOffset, SeekOrigin.Begin);
+                    (RecordPRD read, string nameStr) = ReadRecord(prdReader);
+                    string type = read.IsDetail ? "Деталь" : read.IsAssembly ? "Узел/Изделие" : "Неизвестно";
+                    firstComp = read.p_FirstComp;
+
+                    if (nameStr == name)
+                    {
+                        if (type == "Деталь") throw new Exception($"Компонент '{name}' явлется деталью!");
+                        break;
+                    }
+                    currentOffset = read.p_Next;
                 }
 
-                currentOffset = read.p_Next;
+                if (currentOffset == -1) throw new Exception($"Компонент не найден!");
+
+                int indent = 30;
+                Console.Write(new string(' ', indent));
+                Console.WriteLine(name);
+
+                currentOffset = firstComp;
+                prsStream.Seek(currentOffset, SeekOrigin.Begin);
+
+                filePRS.Record.FlagDelete = prsReader.ReadByte();
+                filePRS.Record.p_Product = prsReader.ReadInt32();
+                filePRS.Record.p_Detail = prsReader.ReadInt32();
+                filePRS.Record.MultiOccurrence = prsReader.ReadUInt16();
+                filePRS.Record.p_Next = prsReader.ReadInt32();
+
+                ushort originalMultiOccurrence = filePRS.Record.MultiOccurrence;
+
+                Console.Write(new string(' ', indent));
+                for (int i = 0; i < originalMultiOccurrence; i++)
+                {
+                    Console.Write("|");
+                    Console.Write(new string(' ', 2));
+                }
+                Console.WriteLine();
+
+                indent += 1;
+                currentOffset = firstComp;
+
+                DrawTree(prsStream, prdStream, currentOffset, filePRS, prsReader, prdReader, name, indent, originalMultiOccurrence);
+            }
+        }
+
+        private void DrawTree(FileStream prsStream, FileStream prdStream, 
+            int currentOffset, PRS filePRS, BinaryReader prsReader, BinaryReader prdReader,
+            string name, int indent, ushort originalMultiOccurrence)
+        {
+            int componentIndex = 0;
+            while (currentOffset != -1)
+            {
+                prsStream.Seek(currentOffset, SeekOrigin.Begin);
+
+                filePRS.Record.FlagDelete = prsReader.ReadByte();
+                filePRS.Record.p_Product = prsReader.ReadInt32();
+                filePRS.Record.p_Detail = prsReader.ReadInt32();
+                filePRS.Record.MultiOccurrence = prsReader.ReadUInt16();
+                filePRS.Record.p_Next = prsReader.ReadInt32();
+
+                prdStream.Seek(filePRS.Record.p_Product, SeekOrigin.Begin);
+                (RecordPRD productRecord, string NameProduct) = ReadRecord(prdReader);
+
+                prdStream.Seek(filePRS.Record.p_Detail, SeekOrigin.Begin);
+                (RecordPRD detailRecord, string NameDetail) = ReadRecord(prdReader);
+
+                Debug.WriteLine($"currentOffset: {currentOffset}, name: {name}");
+
+                if (NameProduct == name)
+                {
+                    Console.Write(new string(' ', indent - NameDetail.Length));
+                    Console.Write(NameDetail);
+
+                    if (!detailRecord.IsDetail)
+                    {
+                        int childOffset = detailRecord.p_FirstComp;
+
+                        PRS childPRS = new PRS();
+                        childPRS.CurrentFileName = NameDetail;
+
+                        prsStream.Seek(childOffset, SeekOrigin.Begin);
+
+                        childPRS.Record.FlagDelete = prsReader.ReadByte();
+                        childPRS.Record.p_Product = prsReader.ReadInt32();
+                        childPRS.Record.p_Detail = prsReader.ReadInt32();
+                        childPRS.Record.MultiOccurrence = prsReader.ReadUInt16();
+                        childPRS.Record.p_Next = prsReader.ReadInt32();
+
+                        ushort childlMultiOccurrence = childPRS.Record.MultiOccurrence;
+
+                        Console.WriteLine();
+                        int newIndent = indent - NameDetail.Length;
+                        Console.Write(new string(' ', newIndent));
+                        for (int i = 0; i < childlMultiOccurrence; i++)
+                        {
+                            Console.Write("|");
+                            Console.Write(new string(' ', 2));
+                        }
+
+                        newIndent += 1;
+
+                        if (childOffset != -1)
+                        {
+                            Console.WriteLine();
+                            DrawTree(prsStream, prdStream,
+                                childOffset,
+                                childPRS, prsReader, prdReader,
+                                NameDetail,
+                                newIndent,
+                                childlMultiOccurrence);
+                        }
+
+                        prsStream.Seek(currentOffset, SeekOrigin.Begin);
+                    }
+
+                    for (int i = componentIndex + 1; i < originalMultiOccurrence; i++)
+                    {
+                        Console.Write(new string(' ', 2));
+                        Console.Write("|");
+                    }
+                    Console.WriteLine();
+
+                    componentIndex++;
+                    indent += 3;
+                }
+                currentOffset = filePRS.Record.p_Next;
             }
 
-            Console.WriteLine(name);
-            Console.WriteLine("|");
-            
-            prsStream.Seek(firstComp, SeekOrigin.Begin);
-
-            filePRS.Record.FlagDelete = prsReader.ReadByte();
-            filePRS.Record.p_Product = prsReader.ReadInt32();
-            filePRS.Record.p_Detail = prsReader.ReadInt32();
-
-            prdStream.Seek(filePRS.Record.p_Detail, SeekOrigin.Begin);
-
-            Record.Name = prdReader.ReadBytes(Header.RecordLen);
-
-            string NameDetail = Encoding.UTF8.GetString(Record.Name);
-
-            Console.WriteLine(NameDetail);
-
         }
+
 
         private void PrintAll()
         {
