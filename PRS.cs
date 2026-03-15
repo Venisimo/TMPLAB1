@@ -551,6 +551,127 @@ namespace TMPLAB1
             }
         }
 
-        public void Truncate() { }
+        //private void pChange(PRD filePRD)
+        //{
+        //    using (FileStream prdStream = new FileStream(filePRD.CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
+        //    using (BinaryReader prdReader = new BinaryReader(prdStream))
+        //    using (BinaryWriter prdWriter = new BinaryWriter(prdStream))
+        //    {
+        //        prdStream.Seek(2, SeekOrigin.Begin);
+        //        filePRD.Header.RecordLen = prdReader.ReadUInt16();
+        //        filePRD.Header.p_FirstRecord = prdReader.ReadInt32();
+
+        //        int currentOffset = Header.p_FirstRecord;
+
+        //        while (currentOffset != -1)
+        //        {
+        //            prdStream.Seek(currentOffset, SeekOrigin.Begin);
+
+        //            (RecordPRD recordPRD, string ProductName) = ReadRecord(prdReader, filePRD.Header.RecordLen);
+
+        //            if (ProductName == )
+
+        //            currentOffset = filePRD.Record.p_Next;
+        //        }
+        //    }
+        //}
+
+        public void Truncate()
+        {
+            if (!IsOpen)
+                throw new Exception("Файл не открыт");
+
+            string tempFile = Path.GetTempFileName();
+
+            int newFirstRecord = -1;
+            int lastRecordOffset = -1;
+            int removedCount = 0;
+
+            string prdFileName = Path.ChangeExtension(CurrentFileName, ".prd");
+            PRD filePRD = new PRD(prdFileName);
+
+            try
+            {
+                using FileStream source = new FileStream(CurrentFileName, FileMode.Open, FileAccess.Read);
+                using FileStream dest = new FileStream(tempFile, FileMode.Create, FileAccess.Write);
+                using BinaryReader br = new BinaryReader(source);
+                using BinaryWriter bw = new BinaryWriter(dest);
+
+                source.Seek(0, SeekOrigin.Begin);
+
+                int firstRecord = br.ReadInt32();
+                int freeSpace = br.ReadInt32();
+
+                bw.Write(-1);
+                bw.Write(0);
+
+                int currentOffset = firstRecord;
+
+                while (currentOffset != -1 && currentOffset < source.Length)
+                {
+                    source.Seek(currentOffset, SeekOrigin.Begin);
+
+                    Record.FlagDelete = br.ReadByte();
+                    Record.p_Product = br.ReadInt32();
+                    Record.p_Detail = br.ReadInt32();
+                    Record.MultiOccurrence = br.ReadUInt16();
+                    Record.p_Next = br.ReadInt32();
+
+                    int nextOffset = Record.p_Next;
+
+                    if (!Record.IsDeleted)
+                    {
+                        int newOffset = (int)dest.Position;
+
+                        if (newFirstRecord == -1)
+                            newFirstRecord = newOffset;
+
+                        bw.Write(Record.FlagDelete);
+                        bw.Write(Record.p_Product);
+                        bw.Write(Record.p_Detail);
+                        bw.Write(Record.MultiOccurrence);
+                        bw.Write(-1);
+
+                        if (lastRecordOffset != -1)
+                        {
+                            long pos = dest.Position;
+
+                            dest.Seek(lastRecordOffset + 11, SeekOrigin.Begin);
+                            bw.Write(newOffset);
+
+                            dest.Seek(pos, SeekOrigin.Begin);
+                        }
+
+                        lastRecordOffset = newOffset;
+                    }
+                    else removedCount++;
+
+                    currentOffset = nextOffset;
+                }
+
+                if (lastRecordOffset != -1)
+                {
+                    dest.Seek(lastRecordOffset + 11, SeekOrigin.Begin);
+                    bw.Write(-1);
+                }
+
+                dest.Seek(0, SeekOrigin.Begin);
+                bw.Write(newFirstRecord);
+                bw.Write(0);
+            }
+            catch
+            {
+                File.Delete(tempFile);
+                throw;
+            }
+
+            File.Delete(CurrentFileName);
+            File.Move(tempFile, CurrentFileName);
+
+            Header.p_FirstRecord = newFirstRecord;
+            Header.p_FreeSpace = 0;
+
+            Console.WriteLine($"Файл сжат. Удалено записей: {removedCount}");
+        }
     }
 }

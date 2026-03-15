@@ -236,6 +236,37 @@ namespace TMPLAB1
             Console.WriteLine($"Компонент '{name}' ({typeStr}) добавлен.");
         }
 
+        private void CheckRelate(int foundOffset, PRS filePRS)
+        {
+            using (FileStream prsStream = new(filePRS.CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryReader prsReader = new BinaryReader(prsStream))
+            using (BinaryWriter prsWriter = new BinaryWriter(prsStream))
+            {
+                prsStream.Seek(0, SeekOrigin.Begin);
+
+                filePRS.Header.p_FirstRecord = prsReader.ReadInt32();
+
+                int currentOffset = filePRS.Header.p_FirstRecord;
+
+                while (currentOffset != -1)
+                {
+                    prsStream.Seek(currentOffset, SeekOrigin.Begin);
+
+                    filePRS.Record.FlagDelete = prsReader.ReadByte();
+                    filePRS.Record.p_Product = prsReader.ReadInt32();
+                    filePRS.Record.p_Detail = prsReader.ReadInt32();
+
+                    if (filePRS.Record.p_Product == foundOffset || filePRS.Record.p_Detail == foundOffset) 
+                        throw new Exception("На компонент имеются ссылки в спецификациях других компонент");
+
+                    filePRS.Record.MultiOccurrence = prsReader.ReadUInt16();
+                    filePRS.Record.p_Next = prsReader.ReadInt32();
+
+                    currentOffset = filePRS.Record.p_Next;
+                }
+            }
+        }
+
         public void Delete(string name)
         {
             if (!IsOpen) throw new Exception("Файл не открыт");
@@ -243,6 +274,11 @@ namespace TMPLAB1
             if (string.IsNullOrEmpty(name)) throw new Exception("Укажите имя компонента для удаления");
 
             int foundOffset = -1;
+
+            string NameSpec = Encoding.UTF8.GetString(Header.NameSpec);
+
+            PRS filePRS = new PRS();
+            filePRS.CurrentFileName = NameSpec;
 
             using (FileStream fs = new FileStream(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
             using (BinaryReader br = new BinaryReader(fs))
@@ -259,10 +295,11 @@ namespace TMPLAB1
                         foundOffset = currentOffset;
                         break;
                     }
-                    
                     currentOffset = read.p_Next;  
                 }
             }
+
+            CheckRelate(foundOffset, filePRS);
 
             if (foundOffset == -1) throw new Exception($"Компонент '{name}' не найден");
 
@@ -272,7 +309,6 @@ namespace TMPLAB1
                 fs.Seek(foundOffset, SeekOrigin.Begin);
                 bw.Write((byte)0xFF);
             }
-
             Console.WriteLine($"Компонент '{name}' помечен как удаленный.");
         }
 
@@ -667,9 +703,8 @@ namespace TMPLAB1
                         (RecordPRD read, string nameStr) = ReadRecord(br);
 
                         string type = read.IsDetail ? "Деталь" : read.IsAssembly ? "Узел/Изделие" : "Неизвестно";
-                        string deleted = read.IsDeleted ? " (удален)" : "";
 
-                        Console.WriteLine($"Наименование: {nameStr}; Тип: {type}");
+                        if (!read.IsDeleted) Console.WriteLine($"Наименование: {nameStr}; Тип: {type}");
                         //Console.WriteLine($"{record.Name}; {type}");
 
                         offset = read.p_Next;
