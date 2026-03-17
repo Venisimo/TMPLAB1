@@ -582,13 +582,13 @@ namespace TMPLAB1
                 throw new Exception("Файл не открыт");
 
             string tempFile = Path.GetTempFileName();
-
             int newFirstRecord = -1;
-            int lastRecordOffset = -1;
             int removedCount = 0;
 
+            // Маппинг старых offset -> новые для PRD
+            Dictionary<int, int> offsetMapForPrd = new Dictionary<int, int>();
+
             string prdFileName = Path.ChangeExtension(CurrentFileName, ".prd");
-            PRD filePRD = new PRD(prdFileName);
 
             try
             {
@@ -598,15 +598,16 @@ namespace TMPLAB1
                 using BinaryWriter bw = new BinaryWriter(dest);
 
                 source.Seek(0, SeekOrigin.Begin);
-
                 int firstRecord = br.ReadInt32();
                 int freeSpace = br.ReadInt32();
 
-                bw.Write(-1);
+                bw.Write(-1); // временный p_FirstRecord
                 bw.Write(0);
 
                 int currentOffset = firstRecord;
+                List<(int oldOffset, long newOffset, int p_Product, int p_Detail, ushort multiOcc)> liveRecords = new();
 
+                // ЭТАП 1: Первый проход
                 while (currentOffset != -1 && currentOffset < source.Length)
                 {
                     source.Seek(currentOffset, SeekOrigin.Begin);
@@ -621,57 +622,152 @@ namespace TMPLAB1
 
                     if (!Record.IsDeleted)
                     {
-                        int newOffset = (int)dest.Position;
-
-                        if (newFirstRecord == -1)
-                            newFirstRecord = newOffset;
+                        long recordPos = dest.Position;
+                        offsetMapForPrd[currentOffset] = (int)recordPos;
 
                         bw.Write(Record.FlagDelete);
                         bw.Write(Record.p_Product);
                         bw.Write(Record.p_Detail);
                         bw.Write(Record.MultiOccurrence);
-                        bw.Write(-1);
+                        bw.Write(0); // временный p_Next
 
-                        if (lastRecordOffset != -1)
-                        {
-                            long pos = dest.Position;
+                        liveRecords.Add((currentOffset, recordPos, Record.p_Product, Record.p_Detail, Record.MultiOccurrence));
 
-                            dest.Seek(lastRecordOffset + 11, SeekOrigin.Begin);
-                            bw.Write(newOffset);
-
-                            dest.Seek(pos, SeekOrigin.Begin);
-                        }
-
-                        lastRecordOffset = newOffset;
+                        if (newFirstRecord == -1)
+                            newFirstRecord = (int)recordPos;
                     }
-                    else removedCount++;
+                    else
+                    {
+                        removedCount++;
+                    }
 
                     currentOffset = nextOffset;
                 }
 
-                if (lastRecordOffset != -1)
+                // ЭТАП 2: Второй проход - обновить p_Next
+                for (int i = 0; i < liveRecords.Count; i++)
                 {
-                    dest.Seek(lastRecordOffset + 11, SeekOrigin.Begin);
-                    bw.Write(-1);
+                    long recordPos = liveRecords[i].newOffset;
+                    int nextPointer = (i < liveRecords.Count - 1) ? (int)liveRecords[i + 1].newOffset : -1;
+
+                    dest.Seek(recordPos + 11, SeekOrigin.Begin);
+                    bw.Write(nextPointer);
                 }
 
                 dest.Seek(0, SeekOrigin.Begin);
                 bw.Write(newFirstRecord);
                 bw.Write(0);
-            }
-            catch
-            {
-                File.Delete(tempFile);
-                throw;
-            }
+            } 
+            catch (Exception e) { Console.Write($"Ошибка: {e.Message}"); }
+    
+            Header.p_FirstRecord = newFirstRecord;
+            Header.p_FreeSpace = 0;
 
             File.Delete(CurrentFileName);
             File.Move(tempFile, CurrentFileName);
 
-            Header.p_FirstRecord = newFirstRecord;
-            Header.p_FreeSpace = 0;
+            // ЭТАП 4: Синхронизировать PRD
+            if (File.Exists(prdFileName))
+            {
+                UpdatePrdAfterPrsTruncate(prdFileName, offsetMapForPrd);
+            }
 
             Console.WriteLine($"Файл сжат. Удалено записей: {removedCount}");
+        }
+
+        /// <summary>
+        /// Обновляет PRD файл после truncate PRS
+        /// Переиндексирует ссылки на PRS (p_FirstComp)
+        /// ВАЖНО: Закрывает все потоки перед изменением файла!
+        /// </summary>
+        private void UpdatePrdAfterPrsTruncate(string prdFileName, Dictionary<int, int> prsOffsetMap)
+        {
+            string tempFile = Path.GetTempFileName();
+
+            try
+            {
+                using (FileStream sourceFs = new FileStream(prdFileName, FileMode.Open, FileAccess.Read))
+                using (FileStream destFs = new FileStream(tempFile, FileMode.Create, FileAccess.Write))
+                using (BinaryReader br = new BinaryReader(sourceFs))
+                using (BinaryWriter bw = new BinaryWriter(destFs))
+                {
+                    sourceFs.Seek(0, SeekOrigin.Begin);
+
+                    byte[] signature = br.ReadBytes(2);
+                    ushort recordLen = br.ReadUInt16();
+                    int oldP_FirstRec = br.ReadInt32();
+                    int oldP_FreeSpace = br.ReadInt32();
+                    byte[] nameSpec = br.ReadBytes(16);
+
+                    bw.Write(signature);
+                    bw.Write(recordLen);
+                    bw.Write(-1);
+                    bw.Write(0);
+                    bw.Write(nameSpec);
+
+                    int currentOffset = oldP_FirstRec;
+                    int newFirstRec = -1;
+                    List<(int oldOffset, long newOffset, int p_FirstComp)> liveRecords = new();
+
+                    // ЭТАП 1: Первый проход
+                    while (currentOffset != -1 && currentOffset < sourceFs.Length)
+                    {
+                        sourceFs.Seek(currentOffset, SeekOrigin.Begin);
+
+                        byte flagDelete = br.ReadByte();
+                        int p_FirstComp = br.ReadInt32();
+                        int p_Next = br.ReadInt32();
+                        byte[] name = br.ReadBytes(recordLen);
+
+                        if (flagDelete != 0xFF) // Живая запись
+                        {
+                            long recordPos = destFs.Position;
+
+                            // Обновляем ссылку на PRS если она есть в маппинге
+                            if (prsOffsetMap.ContainsKey(p_FirstComp))
+                                p_FirstComp = prsOffsetMap[p_FirstComp];
+
+                            bw.Write(flagDelete);
+                            bw.Write(p_FirstComp);
+                            bw.Write(0); // временный p_Next
+                            bw.Write(name);
+
+                            liveRecords.Add((currentOffset, recordPos, p_FirstComp));
+
+                            if (newFirstRec == -1)
+                                newFirstRec = (int)recordPos;
+                        }
+
+                        currentOffset = p_Next;
+                    }
+
+                    // ЭТАП 2: Второй проход - обновить p_Next
+                    for (int i = 0; i < liveRecords.Count; i++)
+                    {
+                        long recordPos = liveRecords[i].newOffset;
+                        int nextPointer = (i < liveRecords.Count - 1) ? (int)liveRecords[i + 1].newOffset : -1;
+
+                        destFs.Seek(recordPos + 5, SeekOrigin.Begin);
+                        bw.Write(nextPointer);
+                    }
+
+                    // ЭТАП 3: Обновить заголовок
+                    destFs.Seek(4, SeekOrigin.Begin);
+                    bw.Write(newFirstRec);
+                    destFs.Seek(8, SeekOrigin.Begin);
+                    bw.Write(0);
+                } // <-- ВСЕ ПОТОКИ ЗАКРЫТЫ ЗДЕСЬ!
+
+                // Теперь файлы закрыты, можем их менять
+                File.Delete(prdFileName);
+                File.Move(tempFile, prdFileName);
+            }
+            catch
+            {
+                if (File.Exists(tempFile))
+                    File.Delete(tempFile);
+                throw;
+            }
         }
     }
 }
