@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TMPLAB1")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cab98cd79dcb38878adf5ede2a311bd662ac7f2f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e013e76b08902245486991f427de892d348fdf1e")]
 [assembly: System.Reflection.AssemblyProductAttribute("TMPLAB1")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TMPLAB1")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

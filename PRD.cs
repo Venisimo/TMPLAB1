@@ -376,7 +376,7 @@ namespace TMPLAB1
 
                     (RecordPRD read, string nameStr) = ReadRecord(br);
 
-                    if (!read.IsDeleted)
+                    if (read.IsDeleted)
                     {
                         fs.Seek(currentOffset, SeekOrigin.Begin);
                         bw.Write((byte)0x00);
@@ -496,11 +496,6 @@ namespace TMPLAB1
             }
         }
 
-        /// <summary>
-        /// Обновляет PRS файл после truncate PRD
-        /// Переиндексирует ссылки на PRD (p_Product и p_Detail)
-        /// ВАЖНО: Закрывает все потоки перед изменением файла!
-        /// </summary>
         private void UpdatePrsAfterPrdTruncate(string prsFileName, Dictionary<int, int> prdOffsetMap)
         {
             string tempFile = Path.GetTempFileName();
