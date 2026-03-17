@@ -3,16 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\prd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:prd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\prs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:prs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\recordprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:recordprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\prd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:prd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\ifile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -25,10 +29,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\headerprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:headerprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\recordprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:recordprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|c:\\users\\ledok\\source\\repos\\tmplab1\\recordprs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -50,17 +50,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "PRS.cs",
               "DocumentMoniker": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\PRS.cs",
               "RelativeDocumentMoniker": "PRS.cs",
               "ToolTip": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\PRS.cs",
               "RelativeToolTip": "PRS.cs",
-              "ViewState": "AgIAAIcCAAAAAAAAAAAQwJICAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAAAACAAAAAAAAAAAUwCkCAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-08T08:22:55.791Z",
               "IsPinned": true,
@@ -68,13 +68,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "PRD.cs",
               "DocumentMoniker": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\PRD.cs",
               "RelativeDocumentMoniker": "PRD.cs",
               "ToolTip": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\PRD.cs",
               "RelativeToolTip": "PRD.cs",
-              "ViewState": "AgIAAN8BAAAAAAAAAAAQwOoBAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAGwCAAAAAAAAAAAswIICAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-03T15:47:42.381Z",
               "IsPinned": true,
@@ -82,7 +82,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "IFile.cs",
               "DocumentMoniker": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\IFile.cs",
               "RelativeDocumentMoniker": "IFile.cs",
@@ -91,8 +91,7 @@
               "ViewState": "AgIAAAYAAAAAAAAAAAAqwBQAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-03T15:45:05.888Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Bookmark",
@@ -104,7 +103,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -112,12 +111,11 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAOAAAAAAAAAAAAApwAABAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T12:06:42.173Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-17T12:06:42.173Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "HeaderPRS.cs",
               "DocumentMoniker": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\HeaderPRS.cs",
               "RelativeDocumentMoniker": "HeaderPRS.cs",
@@ -125,8 +123,7 @@
               "RelativeToolTip": "HeaderPRS.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T14:05:39.151Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-08T14:05:39.151Z"
             },
             {
               "$type": "Document",
@@ -142,7 +139,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 2,
               "Title": "RecordPRD.cs",
               "DocumentMoniker": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\RecordPRD.cs",
               "RelativeDocumentMoniker": "RecordPRD.cs",
@@ -150,11 +147,12 @@
               "RelativeToolTip": "RecordPRD.cs",
               "ViewState": "AgIAAAEAAAAAAAAAAAAQwAoAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-07T04:38:43.291Z"
+              "WhenOpened": "2026-03-07T04:38:43.291Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "HeaderPRD.cs",
               "DocumentMoniker": "C:\\Users\\ledok\\source\\repos\\TMPLAB1\\HeaderPRD.cs",
               "RelativeDocumentMoniker": "HeaderPRD.cs",

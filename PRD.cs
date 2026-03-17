@@ -639,14 +639,14 @@ namespace TMPLAB1
                 return;
             }
 
-            string NameSpec = Encoding.UTF8.GetString(Header.NameSpec);
+            string NameSpec = Encoding.UTF8.GetString(Header.NameSpec).Trim();
 
             PRS filePRS = new PRS();
             filePRS.CurrentFileName = NameSpec;
 
-            using (FileStream prsStream = new(filePRS.CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (FileStream prsStream = new(filePRS.CurrentFileName, FileMode.Open, FileAccess.Read))
             using (BinaryReader prsReader = new(prsStream))
-            using (FileStream prdStream = new(CurrentFileName, FileMode.Open, FileAccess.ReadWrite))
+            using (FileStream prdStream = new(CurrentFileName, FileMode.Open, FileAccess.Read))
             using (BinaryReader prdReader = new(prdStream))
             {
                 int currentOffset = Header.p_FirstRecord;
@@ -661,127 +661,107 @@ namespace TMPLAB1
 
                     if (nameStr == name)
                     {
-                        if (type == "Деталь") throw new Exception($"Компонент '{name}' явлется деталью!");
+                        if (type == "Деталь")
+                            throw new Exception($"Компонент '{name}' является деталью!");
                         break;
                     }
                     currentOffset = read.p_Next;
                 }
 
-                if (currentOffset == -1) throw new Exception($"Компонент не найден!");
+                if (currentOffset == -1)
+                    throw new Exception($"Компонент не найден!");
 
-                int indent = 30;
-                Console.Write(new string(' ', indent));
+                Console.WriteLine();
                 Console.WriteLine(name);
 
-                currentOffset = firstComp;
-                prsStream.Seek(currentOffset, SeekOrigin.Begin);
+                // === Читаем ВСЕ связи из PRS и строим карту ===
+                var childrenMap = BuildChildrenMap(prsStream, prdStream, prsReader, prdReader);
 
-                filePRS.Record.FlagDelete = prsReader.ReadByte();
-                filePRS.Record.p_Product = prsReader.ReadInt32();
-                filePRS.Record.p_Detail = prsReader.ReadInt32();
-                filePRS.Record.MultiOccurrence = prsReader.ReadUInt16();
-                filePRS.Record.p_Next = prsReader.ReadInt32();
-
-                ushort originalMultiOccurrence = filePRS.Record.MultiOccurrence;
-
-                Console.Write(new string(' ', indent));
-                for (int i = 0; i < originalMultiOccurrence; i++)
+                // === Выводим дерево ===
+                if (childrenMap.ContainsKey(name))
                 {
-                    Console.Write("|");
-                    Console.Write(new string(' ', 2));
+                    DrawTreeFromMap(childrenMap, name, "");
                 }
                 Console.WriteLine();
-
-                indent += 1;
-                currentOffset = firstComp;
-
-                DrawTree(prsStream, prdStream, currentOffset, filePRS, prsReader, prdReader, name, indent, originalMultiOccurrence);
             }
         }
-
-        private void DrawTree(FileStream prsStream, FileStream prdStream, 
-            int currentOffset, PRS filePRS, BinaryReader prsReader, BinaryReader prdReader,
-            string name, int indent, ushort originalMultiOccurrence)
+        private Dictionary<string, List<(string childName, bool isAssembly, string childFirstCompRef)>> BuildChildrenMap(
+            FileStream prsStream, FileStream prdStream, BinaryReader prsReader, BinaryReader prdReader)
         {
-            int componentIndex = 0;
-            while (currentOffset != -1)
+            var childrenMap = new Dictionary<string, List<(string, bool, string)>>();
+
+            prsStream.Seek(0, SeekOrigin.Begin);
+            int firstRecord = prsReader.ReadInt32();
+            int freeSpace = prsReader.ReadInt32();
+
+            int offset = firstRecord;
+
+            while (offset != -1 && offset < prsStream.Length)
             {
-                prsStream.Seek(currentOffset, SeekOrigin.Begin);
+                prsStream.Seek(offset, SeekOrigin.Begin);
 
-                filePRS.Record.FlagDelete = prsReader.ReadByte();
-                filePRS.Record.p_Product = prsReader.ReadInt32();
-                filePRS.Record.p_Detail = prsReader.ReadInt32();
-                filePRS.Record.MultiOccurrence = prsReader.ReadUInt16();
-                filePRS.Record.p_Next = prsReader.ReadInt32();
+                byte flagDelete = prsReader.ReadByte();
+                int p_Product = prsReader.ReadInt32();
+                int p_Detail = prsReader.ReadInt32();
+                ushort multiOcc = prsReader.ReadUInt16();
+                int p_Next = prsReader.ReadInt32();
 
-                prdStream.Seek(filePRS.Record.p_Product, SeekOrigin.Begin);
-                (RecordPRD productRecord, string NameProduct) = ReadRecord(prdReader);
-
-                prdStream.Seek(filePRS.Record.p_Detail, SeekOrigin.Begin);
-                (RecordPRD detailRecord, string NameDetail) = ReadRecord(prdReader);
-
-                Debug.WriteLine($"currentOffset: {currentOffset}, name: {name}");
-
-                if (!filePRS.Record.IsDeleted && NameProduct == name)
+                // Пропускаем удаленные записи
+                if (flagDelete == 0xFF)
                 {
-                    Console.Write(new string(' ', indent - NameDetail.Length));
-                    Console.Write(NameDetail);
-
-                    if (!detailRecord.IsDetail)
-                    {
-                        int childOffset = detailRecord.p_FirstComp;
-
-                        PRS childPRS = new PRS();
-                        childPRS.CurrentFileName = NameDetail;
-
-                        prsStream.Seek(childOffset, SeekOrigin.Begin);
-
-                        childPRS.Record.FlagDelete = prsReader.ReadByte();
-                        childPRS.Record.p_Product = prsReader.ReadInt32();
-                        childPRS.Record.p_Detail = prsReader.ReadInt32();
-                        childPRS.Record.MultiOccurrence = prsReader.ReadUInt16();
-                        childPRS.Record.p_Next = prsReader.ReadInt32();
-
-                        ushort childlMultiOccurrence = childPRS.Record.MultiOccurrence;
-
-                        Console.WriteLine();
-                        int newIndent = indent - NameDetail.Length;
-                        Console.Write(new string(' ', newIndent));
-                        for (int i = 0; i < childlMultiOccurrence; i++)
-                        {
-                            Console.Write("|");
-                            Console.Write(new string(' ', 2));
-                        }
-
-                        newIndent += 1;
-
-                        if (childOffset != -1)
-                        {
-                            Console.WriteLine();
-                            DrawTree(prsStream, prdStream,
-                                childOffset,
-                                childPRS, prsReader, prdReader,
-                                NameDetail,
-                                newIndent,
-                                childlMultiOccurrence);
-                        }
-
-                        prsStream.Seek(currentOffset, SeekOrigin.Begin);
-                    }
-
-                    for (int i = componentIndex + 1; i < originalMultiOccurrence; i++)
-                    {
-                        Console.Write(new string(' ', 2));
-                        Console.Write("|");
-                    }
-                    Console.WriteLine();
-
-                    componentIndex++;
-                    indent += 3;
+                    offset = p_Next;
+                    continue;
                 }
-                currentOffset = filePRS.Record.p_Next;
+
+                // Читаем имя продукта (родителя)
+                prdStream.Seek(p_Product, SeekOrigin.Begin);
+                (RecordPRD prodRec, string prodName) = ReadRecord(prdReader);
+
+                // Читаем имя детали и проверяем, является ли она узлом
+                prdStream.Seek(p_Detail, SeekOrigin.Begin);
+                (RecordPRD detailRec, string detailName) = ReadRecord(prdReader);
+
+                bool isAssembly = detailRec.IsAssembly;
+                string detailRefStr = detailRec.p_FirstComp.ToString();
+
+                // Добавляем в карту
+                if (!childrenMap.ContainsKey(prodName))
+                    childrenMap[prodName] = new List<(string, bool, string)>();
+
+                childrenMap[prodName].Add((detailName, isAssembly, detailRefStr));
+
+                offset = p_Next;
             }
 
+            return childrenMap;
+        }
+
+        private void DrawTreeFromMap(
+            Dictionary<string, List<(string childName, bool isAssembly, string childRef)>> childrenMap,
+            string parentName, string prefix)
+        {
+            if (!childrenMap.ContainsKey(parentName))
+                return;
+
+            var children = childrenMap[parentName];
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                var (childName, isAssembly, _) = children[i];
+                bool isLast = (i == children.Count - 1);
+
+                // Выводим текущий элемент
+                Console.Write(prefix);
+                Console.Write(isLast ? "└── " : "├── ");
+                Console.WriteLine(childName);
+
+                // Если это узел/изделие, рекурсивно выводим его детей
+                if (isAssembly)
+                {
+                    string newPrefix = prefix + (isLast ? "    " : "│   ");
+                    DrawTreeFromMap(childrenMap, childName, newPrefix);
+                }
+            }
         }
 
 
