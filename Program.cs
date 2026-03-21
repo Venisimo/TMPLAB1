@@ -13,7 +13,7 @@ namespace ConsoleApp
                 "Create <имя файла> - создает файл с расширением prd",
                 "Open <имя файла> - открывает указанный файл для работы с ним",
                 "Input (имя компонента, тип) Input (имя компонента, тип) — включает компонент в список. тип — одно из следующего: Изделие, Узел, Деталь.",
-                "Input (имя компонента/имя комплектующего) — включает комплектующее в спецификацию компонента.",
+                "Input (имя компонента, имя комплектующего) — включает комплектующее в спецификацию компонента.",
                 "Delete <имя компонента> — помечает компонент на удаление",
                 "Restore <имя компонента> - убирает пометку на уделение у указанного компонента",
                 "Restore * - убирает пометку на уделение у всех компонентов",
@@ -59,7 +59,9 @@ namespace ConsoleApp
                 Console.WriteLine($"Вспомогательная информация записана в в файл - {fileName}");
             }
         }
-
+        /// <summary>
+        /// Проверка расширения файла для его создания 
+        /// </summary>
         public static IFile CheckExtention(string fileName, string? recLen = null)
         {
             if (fileName.EndsWith(".prd"))
@@ -78,6 +80,9 @@ namespace ConsoleApp
             }
         }
 
+        /// <summary>
+        /// Проверка расширения (для всех остальных команд)
+        /// </summary>
         public static IFile CheckExtention(string fileName)
         {
             if (fileName.EndsWith(".prd"))
@@ -100,6 +105,7 @@ namespace ConsoleApp
             string message;
             Console.WriteLine("Система управления спецификациями (PRD)");
 
+            // Основной цикл командной строки
             while (true)
             {
                 Console.Write("PS> ");
