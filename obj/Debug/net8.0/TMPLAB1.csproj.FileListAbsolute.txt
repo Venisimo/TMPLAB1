@@ -57,3 +57,22 @@ D:\НГТУ\4 семестр\ТиМП\lab1\obj\Debug\net8.0\refint\TMPLAB1.dll
 D:\НГТУ\4 семестр\ТиМП\lab1\obj\Debug\net8.0\TMPLAB1.pdb
 D:\НГТУ\4 семестр\ТиМП\lab1\obj\Debug\net8.0\TMPLAB1.genruntimeconfig.cache
 D:\НГТУ\4 семестр\ТиМП\lab1\obj\Debug\net8.0\ref\TMPLAB1.dll
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\bin\Debug\net8.0\TMPLAB1.exe
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\bin\Debug\net8.0\TMPLAB1.deps.json
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\bin\Debug\net8.0\TMPLAB1.runtimeconfig.json
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\bin\Debug\net8.0\TMPLAB1.dll
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\bin\Debug\net8.0\TMPLAB1.pdb
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\bin\Debug\net8.0\PRDLib.dll
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\bin\Debug\net8.0\PRDLib.pdb
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.csproj.AssemblyReference.cache
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.GeneratedMSBuildEditorConfig.editorconfig
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.AssemblyInfoInputs.cache
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.AssemblyInfo.cs
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.csproj.CoreCompileInputs.cache
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.sourcelink.json
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.csproj.Up2Date
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.dll
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\refint\TMPLAB1.dll
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.pdb
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\TMPLAB1.genruntimeconfig.cache
+D:\НГТУ\4 семестр\ТиМП\ВСЯ 1 ЛАБА\ConsoleApp\obj\Debug\net8.0\ref\TMPLAB1.dll

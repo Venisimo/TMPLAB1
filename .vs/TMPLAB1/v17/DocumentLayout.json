@@ -1,46 +1,10 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\",
+  "WorkspaceRootPath": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\\u0412\u0421\u042F 1 \u041B\u0410\u0411\u0410\\ConsoleApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\prs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:prs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\prd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:prd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\ifileheader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:ifileheader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\\u0432\u0441\u044F 1 \u043B\u0430\u0431\u0430\\consoleapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\recordprs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:recordprs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\headerprs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:headerprs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\headerprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:headerprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\recordprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:recordprd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\irecord.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:irecord.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|d:\\\u043D\u0433\u0442\u0443\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0442\u0438\u043C\u043F\\lab1\\ifile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C070973E-F5C7-4436-98C9-0588BF13D080}|TMPLAB1.csproj|solutionrelative:ifile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,49 +14,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "IFile.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\IFile.cs",
-              "RelativeDocumentMoniker": "IFile.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\IFile.cs",
-              "RelativeToolTip": "IFile.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAqwAsAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-03T15:45:05.888Z",
-              "IsPinned": true
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "PRS.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\PRS.cs",
-              "RelativeDocumentMoniker": "PRS.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\PRS.cs",
-              "RelativeToolTip": "PRS.cs",
-              "ViewState": "AgIAAGsAAAAAAAAAAAAowNkAAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T08:22:55.791Z",
-              "IsPinned": true,
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "PRD.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\PRD.cs",
-              "RelativeDocumentMoniker": "PRD.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\PRD.cs",
-              "RelativeToolTip": "PRD.cs",
-              "ViewState": "AgIAAFYAAAAAAAAAAADwv2UAAAA9AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-03T15:47:42.381Z",
-              "IsPinned": true,
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
@@ -103,89 +26,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "Program.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\Program.cs",
+              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\\u0412\u0421\u042F 1 \u041B\u0410\u0411\u0410\\ConsoleApp\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\Program.cs",
+              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\\u0412\u0421\u042F 1 \u041B\u0410\u0411\u0410\\ConsoleApp\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T12:05:26.941Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "HeaderPRS.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\HeaderPRS.cs",
-              "RelativeDocumentMoniker": "HeaderPRS.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\HeaderPRS.cs",
-              "RelativeToolTip": "HeaderPRS.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T14:05:39.151Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "RecordPRS.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\RecordPRS.cs",
-              "RelativeDocumentMoniker": "RecordPRS.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\RecordPRS.cs",
-              "RelativeToolTip": "RecordPRS.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-06T14:56:53.324Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "RecordPRD.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\RecordPRD.cs",
-              "RelativeDocumentMoniker": "RecordPRD.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\RecordPRD.cs",
-              "RelativeToolTip": "RecordPRD.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAQwAoAAAADAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-07T04:38:43.291Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "HeaderPRD.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\HeaderPRD.cs",
-              "RelativeDocumentMoniker": "HeaderPRD.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\HeaderPRD.cs",
-              "RelativeToolTip": "HeaderPRD.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAwwA8AAAAeAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T08:14:28.809Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "IRecord.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\IRecord.cs",
-              "RelativeDocumentMoniker": "IRecord.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\IRecord.cs",
-              "RelativeToolTip": "IRecord.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-06T07:48:03.906Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "IFileHeader.cs",
-              "DocumentMoniker": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\IFileHeader.cs",
-              "RelativeDocumentMoniker": "IFileHeader.cs",
-              "ToolTip": "D:\\\u041D\u0413\u0422\u0423\\4 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0422\u0438\u041C\u041F\\lab1\\IFileHeader.cs",
-              "RelativeToolTip": "IFileHeader.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAgAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-06T07:47:35.665Z",
+              "WhenOpened": "2026-03-20T09:11:32.246Z",
               "EditorCaption": ""
             }
           ]

@@ -7,4 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="PRDLib">
+      <HintPath>..\Lib\obj\Debug\net8.0\PRDLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
