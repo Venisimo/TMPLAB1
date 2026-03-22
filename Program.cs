@@ -5,6 +5,9 @@ namespace ConsoleApp
 {
     internal class Program
     {
+        /// <summary>
+        /// Проверка расширения файла для его создания 
+        /// </summary>
         static void Help(string fileName)
         {
             string[] lines =
@@ -37,28 +40,26 @@ namespace ConsoleApp
             {
                 if (File.Exists(fileName))
                 {
-                    Console.WriteLine($"Файл {fileName} уже существует!");
+                    while (true)
+                    {
+                        Console.Write("Хотите пересоздать файл с данным именем? (y/n): ");
+                        char res = Console.ReadKey(true).KeyChar;
+                        Console.WriteLine(res);
+                        if (res == 'n' || res == 'N') return;
+                        if (res == 'y' || res == 'Y') break;
+                    }
+                   
                 }
-
-                while (true)
-                {
-                    Console.Write("Хотите пересоздать файл с данным именем? (y/n): ");
-                    char res = Console.ReadKey(true).KeyChar;
-                    Console.WriteLine(res);
-
-                    if (res == 'n' || res == 'N') return;
-                    if (res == 'y' || res == 'Y') break;
-                }
-
                 using (FileStream fs = File.Create(fileName))
                 {
                     byte[] bytes = Encoding.UTF8.GetBytes(text);
 
                     fs.Write(bytes, 0, bytes.Length);
                 }
-                Console.WriteLine($"Вспомогательная информация записана в в файл - {fileName}");
+                Console.WriteLine($"Вспомогательная информация записана в файл - {fileName}");
             }
         }
+
         /// <summary>
         /// Проверка расширения файла для его создания 
         /// </summary>
