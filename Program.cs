@@ -202,15 +202,6 @@ namespace ConsoleApp
                             currentFile.Print(argument);
                             break;
 
-                        case "printdev":
-                            if ((currentFile == null) || !currentFile.IsOpen)
-                            { 
-                                throw new Exception("Файл не открыт");
-                            }
-                                
-                            currentFile.PrintDev();
-                            break;
-
                         case "restore":
                             if ((currentFile == null) || !currentFile.IsOpen)
                             { 
